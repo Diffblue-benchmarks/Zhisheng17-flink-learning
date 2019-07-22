@@ -1,0 +1,374 @@
+# Copyright 2019 Diffblue Limited. All Rights Reserved.
+cbmcArguments:
+  # Do not generate coverage comments on generated tests.
+  java-generate-no-comments: true
+  # Constrain the size of arrays created in the analyzed code.
+  java-max-vla-length: 100000
+phases:
+  -
+    # Phase 0 PRETTY, SIMPLE and SMART - pretty tests, do not test private methods directly, Smart-Harness
+    timeout: 180
+    cbmcArguments:
+      # Use simple models first containers (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # Instrument the file as opposed to the function only
+      cover-only: file
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Instantiate classes using the simplest constructor strategy
+      smart-harness: simplest-constructor-and-nondet
+  -
+    # Phase 1 PRETTY AND COMPLEX - standard models only, pretty tests, do not test private methods directly, input factory
+    timeout: 180
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 2
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+      # Limit input factory recursive depth (default 0 = no recursion allowed)
+      java-test-input-factory-bmc-recursion-limit: 4
+  -
+    # Phase 2 FIFO Strategy - pretty tests, do not test private methods directly, fifo
+    timeout: 100
+    cbmcArguments:
+      # Use the standard models library
+      classpath: '/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Add constraint that strings are printable
+      max-nondet-string-length: 100
+      # Explores the program tree breadth-first.
+      paths: fifo
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: false
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 3 Exceptions - do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: false
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 30
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+  -
+    # Phase 4 Direct testing - test private methods directly, increased reflection
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 1500
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 10
+      # Bound the length of input strings.
+      max-nondet-string-length: 10
+      # Add constraint that strings are printable
+      string-printable: true
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: false
+      # Set an upper bound on loop unwinding.
+      unwind: 1
+      # Set string input value
+      string-input-value: ["foo", "Bar", "BAZ", "1234", "1a 2b 3c", "A1B2C3", "a,b,c", "1", "2", "3", "a/b/c", "a'b'c", ",", "/", "'"]
+      # If the logs contain output of the following then proceed to phase X
+    nextPhase:
+      # If the function is not analysable then do not pass onto the next phase
+      not_analyzed: null
+  -
+    # PHASE 5 Mocking - aggressive mocking, do not test private methods directly
+    timeout: 180
+    cbmcArguments:
+      # Use simple models containers first (ArrayList, HashMap, HashSet,...) will have a maximum size of one.
+      classpath: '/tools/cbmc/models-simple-overlay.jar:/tools/cbmc/models.jar:.'
+      # Set a limit on the number of instructions that can be generated as part of a test trace.
+      depth: 3000
+      # never initialize reference-typed parameter to the entry point with null
+      java-assume-inputs-non-null: true
+      # Only load the class (and related inner/outer classes) containing the method under test,
+      load-containing-class-only: true
+      # Maximum allowed length for an array passed as test input.
+      max-nondet-array-length: 30
+      # Bound the length of input strings.
+      max-nondet-string-length: 100
+      # Add constraint that strings are printable
+      string-printable: false
+      # Make implicit runtime exceptions explicit.
+      throw-runtime-exceptions: true
+      # Set an upper bound on loop unwinding.
+      unwind: 3
+      # Do not test any methods that have the specified access level.
+      do-not-test-methods-with-access: [private]
+      # Instrument the entry point function only.
+      cover-function-only: false
+      # instrument the file as opposed to the function only
+      cover-only: file
+units:
+ - target:
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/utils/StringUtil.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/StringUtil.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-common/target/classes
+     file: com/zhisheng/common/utils/PropertiesUtil.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/PropertiesUtil.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-rocketmq/target/classes
+     file: com/zhisheng/connectors/rocketmq/RocketMQUtils.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-rocketmq/src/main/java
+     sourceFile: com/zhisheng/connectors/rocketmq/RocketMQUtils.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/Email.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/Email.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-mysql/target/classes
+     file: com/zhisheng/connectors/mysql/model/Student.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-mysql/src/main/java
+     sourceFile: com/zhisheng/connectors/mysql/model/Student.java
+ - target:
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/model/ProductEvent$ProductEventBuilder.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/model/ProductEvent.java
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/model/ProductEvent.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/model/ProductEvent.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/WorkNotify.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/WorkNotify.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/WorkNotify$Msg.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/WorkNotify.java
+ - target:
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/model/ProductEvent.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/model/ProductEvent.java
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/model/ProductEvent$ProductEventBuilder.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/model/ProductEvent.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-rocketmq/target/classes
+     file: com/zhisheng/connectors/rocketmq/common/serialization/SimpleKeyValueDeserializationSchema.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-rocketmq/src/main/java
+     sourceFile: com/zhisheng/connectors/rocketmq/common/serialization/SimpleKeyValueDeserializationSchema.java
+ - target:
+   - dir: flink-learning-data-sinks/target/classes
+     file: com/zhisheng/data/sinks/model/Student.class
+     sourceDir: flink-learning-data-sinks/src/main/java
+     sourceFile: com/zhisheng/data/sinks/model/Student.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-common/target/classes
+     file: com/zhisheng/common/model/Job.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-common/src/main/java
+     sourceFile: com/zhisheng/common/model/Job.java
+   - dir: flink-learning-monitor/flink-learning-monitor-common/target/classes
+     file: com/zhisheng/common/model/JobStatus.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-common/src/main/java
+     sourceFile: com/zhisheng/common/model/JobStatus.java
+   - dir: flink-learning-monitor/flink-learning-monitor-common/target/classes
+     file: com/zhisheng/common/model/Task.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-common/src/main/java
+     sourceFile: com/zhisheng/common/model/Task.java
+ - target:
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/utils/MySQLUtil.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/utils/MySQLUtil.java
+ - target:
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/model/Student.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/model/Student.java
+ - target:
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/model/Rule$RuleBuilder.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/model/Rule.java
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/model/Rule.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/model/Rule.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-common/target/classes
+     file: com/zhisheng/common/model/Task.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-common/src/main/java
+     sourceFile: com/zhisheng/common/model/Task.java
+ - target:
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/model/Rule.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/model/Rule.java
+   - dir: flink-learning-data-sources/target/classes
+     file: com/zhisheng/data/sources/model/Rule$RuleBuilder.class
+     sourceDir: flink-learning-data-sources/src/main/java
+     sourceFile: com/zhisheng/data/sources/model/Rule.java
+ - target:
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/utils/DingDingGroupMsgUtil.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/utils/DingDingGroupMsgUtil.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/BaseMessage.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/BaseMessage.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/TextMessage$TextContent.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/TextMessage.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/LinkMessage$Link.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/LinkMessage.java
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/utils/GsonUtil.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/GsonUtil.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/MarkDownMessage$MarkDownContent.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/MarkDownMessage.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/LinkMessage.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/LinkMessage.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/MarkDownMessage.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/MarkDownMessage.java
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/utils/HttpUtil.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/HttpUtil.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/TextMessage.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/TextMessage.java
+   - dir: flink-learning-monitor/flink-learning-monitor-alert/target/classes
+     file: com/zhisheng/alert/model/AtMobiles.class
+     sourceDir: flink-learning-monitor/flink-learning-monitor-alert/src/main/java
+     sourceFile: com/zhisheng/alert/model/AtMobiles.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-es6/target/classes
+     file: com/zhisheng/connectors/es6/utils/ElasticSearchSinkUtil.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-es6/src/main/java
+     sourceFile: com/zhisheng/connectors/es6/utils/ElasticSearchSinkUtil.java
+   - dir: flink-learning-connectors/flink-learning-connectors-es6/target/classes
+     file: com/zhisheng/connectors/es6/utils/ElasticSearchSinkUtil$RetryRejectedExecutionFailureHandler.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-es6/src/main/java
+     sourceFile: com/zhisheng/connectors/es6/utils/ElasticSearchSinkUtil.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-influxdb/target/classes
+     file: com/zhisheng/connectors/influxdb/InfluxDBConfig$InfluxDBConfigBuilder.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-influxdb/src/main/java
+     sourceFile: com/zhisheng/connectors/influxdb/InfluxDBConfig.java
+   - dir: flink-learning-connectors/flink-learning-connectors-influxdb/target/classes
+     file: com/zhisheng/connectors/influxdb/InfluxDBConfig.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-influxdb/src/main/java
+     sourceFile: com/zhisheng/connectors/influxdb/InfluxDBConfig.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-flume/target/classes
+     file: com/zhisheng/connectors/flume/utils/FlumeUtil.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-flume/src/main/java
+     sourceFile: com/zhisheng/connectors/flume/utils/FlumeUtil.java
+ - target:
+   - dir: flink-learning-connectors/flink-learning-connectors-influxdb/target/classes
+     file: com/zhisheng/connectors/influxdb/InfluxDBConfig.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-influxdb/src/main/java
+     sourceFile: com/zhisheng/connectors/influxdb/InfluxDBConfig.java
+   - dir: flink-learning-connectors/flink-learning-connectors-influxdb/target/classes
+     file: com/zhisheng/connectors/influxdb/InfluxDBConfig$InfluxDBConfigBuilder.class
+     sourceDir: flink-learning-connectors/flink-learning-connectors-influxdb/src/main/java
+     sourceFile: com/zhisheng/connectors/influxdb/InfluxDBConfig.java
+ - target:
+   - dir: flink-learning-sql/target/classes
+     file: com/zhisheng/model/WC.class
+     sourceDir: flink-learning-sql/src/main/java
+     sourceFile: com/zhisheng/model/WC.java
+ - target:
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/utils/GsonUtil.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/GsonUtil.java
+ - target:
+   - dir: flink-learning-common/target/classes
+     file: com/zhisheng/common/utils/HttpUtil.class
+     sourceDir: flink-learning-common/src/main/java
+     sourceFile: com/zhisheng/common/utils/HttpUtil.java
